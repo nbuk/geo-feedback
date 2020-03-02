@@ -1,4 +1,4 @@
-export default class YAPI {
+export default class YApi {
     init(settings) {
         this.balloonLayoutForm = this.__createBalloonLayout();
 
@@ -86,6 +86,7 @@ export default class YAPI {
         </div>
         <div class="reviews__form">
           <h4>Ваш отзыв</h4>
+          <div class="error">Все поля обязательны для заполнения!</div>
           <form action="#">
               <div class="reviews__form__username">
                   <span class="placeholder">Ваше имя</span>

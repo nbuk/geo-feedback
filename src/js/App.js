@@ -1,4 +1,4 @@
-import YAPI from './yApi/yApi';
+import YApi from './yApi/yApi';
 import LocalStorageManager from './Extensions/localStorageManager';
 import EventListenersManager from './Extensions/eventListenersManager';
 import newCommentTemplate from '../templates/newCommentTemplate.hbs';
@@ -8,7 +8,7 @@ import '../scss/main.scss';
 export default class App {
     init() {
         ymaps.ready(() => {
-            const yApi = new YAPI();
+            const yApi = new YApi();
 
             yApi.init({
                 center: [56.84909983477016, 53.20768853355251],
@@ -26,70 +26,69 @@ export default class App {
             document.addEventListener('click', e => {
                 e.preventDefault();
                 if (e.target.classList.contains('reviews__form__add-btn')) {
-                    let coords = document.querySelector('.reviews').dataset
-                        .coords;
-                    const usernameInput = document.querySelector(
-                        '#username-input'
-                    );
-                    const locationInput = document.querySelector(
-                        '#location-input'
-                    );
-                    const feedbackInput = document.querySelector(
-                        '#review-text'
-                    );
-                    const address = document.querySelector('#address-name')
-                        .textContent;
+                    let coords = document.querySelector('.reviews').dataset.coords;
+                    const usernameInput = document.querySelector('#username-input');
+                    const locationInput = document.querySelector('#location-input');
+                    const feedbackInput = document.querySelector('#review-text');
+                    const address = document.querySelector('#address-name').textContent;
 
-                    const username = usernameInput.value,
-                        location = locationInput.value,
-                        feedback = feedbackInput.value;
+                    const username = usernameInput.value.replace(/[\s]+/g, ''),
+                        location = locationInput.value.replace(/[\s]+/g, ''),
+                        feedback = feedbackInput.value.replace(/[\s]+/g, '');
 
                     coords = coords.split(',');
 
-                    const balloonLayout = yApi.balloonLayoutForm;
+                    const errorAlert = document.querySelector('.error');
 
-                    // content for clusterer balloon
-                    const balloonContentBody = `
-                        <span class="address-link" data-address="${address}"> ${location} </span>
-                        <p> ${feedback} </p>
-                    `;
+                    if (username && location && feedback) {
+                        errorAlert.style.display = 'none';
 
-                    const newGeoObjectData = {
-                        geometry: {
-                            type: 'Point',
-                            coordinates: coords
-                        },
-                        properties: {
-                            balloonContentHeader: location,
-                            balloonContentBody: balloonContentBody,
-                            address: address,
-                            coords: coords,
-                            data: {
-                                location: location,
-                                reviews: [
-                                    {
-                                        username,
-                                        location,
-                                        feedback
-                                    }
-                                ]
+                        const balloonLayout = yApi.balloonLayoutForm;
+
+                        // content for clusterer balloon
+                        const balloonContentBody = `
+                        <span class="address-link" data-address="${address}"> ${location} </span>`;
+
+                        const newGeoObjectData = {
+                            geometry: {
+                                type: 'Point',
+                                coordinates: coords
+                            },
+                            properties: {
+                                balloonContentHeader: location,
+                                balloonContentBody: balloonContentBody,
+                                address: address,
+                                coords: coords,
+                                data: {
+                                    location: location,
+                                    reviews: [
+                                        {
+                                            username,
+                                            location,
+                                            feedback
+                                        }
+                                    ]
+                                }
                             }
-                        }
-                    };
+                        };
 
-                    lsManager.addNewGeoObject(newGeoObjectData);
+                        lsManager.addNewGeoObject(newGeoObjectData);
 
-                    const newGeoObject = new ymaps.GeoObject(newGeoObjectData, {
-                        balloonLayout
-                    });
+                        const newGeoObject = new ymaps.GeoObject(
+                            newGeoObjectData,
+                            {
+                                balloonLayout
+                            }
+                        );
 
-                    yApi.clusterer.add(newGeoObject);
-
-                    this._insertNewComment(username, location, feedback);
-
-                    usernameInput.value = '';
-                    locationInput.value = '';
-                    feedbackInput.value = '';
+                        yApi.clusterer.add(newGeoObject);
+                        this._insertNewComment(username, location, feedback);
+                        usernameInput.value = '';
+                        locationInput.value = '';
+                        feedbackInput.value = '';
+                    } else {
+                        errorAlert.style.display = 'block';
+                    }
                 }
 
                 if (e.target.classList.contains('reviews__close-btn')) {
