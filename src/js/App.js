@@ -1,6 +1,6 @@
 import YApi from './yApi/yApi';
-import LocalStorageManager from './Extensions/localStorageManager';
-import EventListenersManager from './Extensions/eventListenersManager';
+import LocalStorageManager from './helpers/localStorageManager';
+import EventListenersManager from './helpers/eventListenersManager';
 import newCommentTemplate from '../templates/newCommentTemplate.hbs';
 
 import '../scss/main.scss';
